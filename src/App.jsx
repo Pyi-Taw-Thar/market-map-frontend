@@ -14,6 +14,17 @@ function App() {
     <LoadScript
       googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
       libraries={["places"]}
+      loadingElement={
+        <div className="min-h-screen bg-[#f0fdf4] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative w-16 h-16">
+              <div className="absolute top-0 left-0 w-full h-full border-4 border-green-100 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-full h-full border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
+            </div>
+            <p className="text-gray-500 font-medium">Loading PTT Marketing Map...</p>
+          </div>
+        </div>
+      }
     >
       <div className="min-h-screen bg-[#f8fafc]">
         {/* Modern Sidebar/Navbar */}
