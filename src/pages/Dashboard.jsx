@@ -258,7 +258,7 @@ function Dashboard() {
         <div className="fixed inset-0 z-[100] overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
             <div 
-              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+              className="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity"
               onClick={() => setSelectedShopDetails(null)}
             ></div>
 
