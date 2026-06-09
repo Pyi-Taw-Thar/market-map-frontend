@@ -255,14 +255,14 @@ function Dashboard() {
 
       {/* Shop Details Modal */}
       {selectedShopDetails && (
-        <div className="fixed inset-0 z-[100] overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-            <div 
-              className="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity"
-              onClick={() => setSelectedShopDetails(null)}
-            ></div>
+        <div className="fixed inset-0 z-[100]">
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-md"
+            onClick={() => setSelectedShopDetails(null)}
+          ></div>
 
-            <div className="relative inline-block align-middle bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
+          <div className="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="relative w-full max-w-lg bg-white rounded-3xl text-left overflow-hidden shadow-2xl">
               <div className="bg-green-600 px-8 py-10 text-white relative">
                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-green-500/50 to-transparent"></div>
                  <div className="relative z-10 flex justify-between items-start">
