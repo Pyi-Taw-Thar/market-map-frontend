@@ -72,8 +72,8 @@ function MapView() {
     return (
       <div className="flex flex-col justify-center items-center py-24 gap-4">
         <div className="relative w-16 h-16">
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-100 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-4 border-green-100 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
         <p className="text-gray-500 font-medium animate-pulse">Initializing map...</p>
       </div>
@@ -87,13 +87,13 @@ function MapView() {
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Geographic Overview</h2>
           <p className="text-gray-500 font-medium">Explore registered shops on the map</p>
         </div>
-        <div className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl font-bold text-sm flex items-center gap-2 border border-indigo-100">
+        <div className="px-4 py-2 bg-green-50 text-green-700 rounded-xl font-bold text-sm flex items-center gap-2 border border-green-100">
            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
            {shops.length} Active Markers
         </div>
       </div>
 
-      <div className="relative glass-card p-3 rounded-[2.5rem] shadow-2xl shadow-indigo-100 overflow-hidden">
+      <div className="relative glass-card p-3 rounded-[2.5rem] shadow-2xl shadow-green-100 overflow-hidden">
         {error && (
           <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20 px-6 py-3 bg-red-600 text-white rounded-2xl shadow-xl font-bold text-sm">
             {error}
@@ -122,7 +122,7 @@ function MapView() {
             >
               <div className="p-4 min-w-[260px] max-w-sm">
                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     </div>
                     <div>
@@ -144,7 +144,7 @@ function MapView() {
 
                 <button
                   onClick={() => getDirections(selectedShop.location.lat, selectedShop.location.lng)}
-                  className="w-full btn-primary py-2 text-sm shadow-indigo-100"
+                  className="w-full btn-primary py-2 text-sm shadow-green-100"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   Open in Maps

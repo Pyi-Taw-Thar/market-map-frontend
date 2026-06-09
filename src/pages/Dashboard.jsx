@@ -48,8 +48,8 @@ function Dashboard() {
     return (
       <div className="flex flex-col justify-center items-center py-24 gap-4">
         <div className="relative w-16 h-16">
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-100 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-4 border-green-100 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-full h-full border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
         <p className="text-gray-500 font-medium animate-pulse">Loading dashboard...</p>
       </div>
@@ -67,7 +67,7 @@ function Dashboard() {
         
         <div className="relative w-full lg:w-[400px] group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg className="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-400 group-focus-within:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -93,17 +93,17 @@ function Dashboard() {
       {/* Birthday Banner */}
       {upcomingBirthdays.length > 0 ? (
         <section className="relative overflow-hidden glass-card rounded-3xl p-8">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
           
           <div className="relative">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
+              <div className="p-2.5 bg-green-100 text-green-600 rounded-xl">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-violet-700">
+              <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-700 to-emerald-700">
                 Upcoming Celebrations
               </h3>
             </div>
@@ -112,15 +112,15 @@ function Dashboard() {
               {upcomingBirthdays.map((shop) => (
                 <div key={shop._id} className="group bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
-                      <span className="text-xl font-bold text-indigo-600">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-green-50 transition-colors">
+                      <span className="text-xl font-bold text-green-600">
                         {shop.ownerName.charAt(0)}
                       </span>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${
                       shop.daysUntilBirthday === 0 
                         ? 'bg-red-100 text-red-600'
-                        : 'bg-indigo-100 text-indigo-600'
+                        : 'bg-green-100 text-green-600'
                     }`}>
                       {shop.daysUntilBirthday === 0 ? 'Today' : `in ${shop.daysUntilBirthday} days`}
                     </div>
@@ -138,7 +138,7 @@ function Dashboard() {
                     </div>
                     <button 
                       onClick={() => setSelectedShopDetails(shop)}
-                      className="text-indigo-600 hover:text-indigo-700 font-bold text-xs"
+                      className="text-green-600 hover:text-green-700 font-bold text-xs"
                     >
                       View Details
                     </button>
@@ -197,16 +197,16 @@ function Dashboard() {
                   </tr>
                 ) : (
                   filteredShops.map((shop) => (
-                    <tr key={shop._id} className="hover:bg-indigo-50/30 transition-colors group">
+                    <tr key={shop._id} className="hover:bg-green-50/30 transition-colors group">
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-11 h-11 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm group-hover:border-indigo-200 transition-colors">
-                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-11 h-11 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm group-hover:border-green-200 transition-colors">
+                            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                           </div>
                           <div>
-                            <p className="font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">{shop.shopName}</p>
+                            <p className="font-bold text-gray-900 group-hover:text-green-700 transition-colors">{shop.shopName}</p>
                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-tight mt-0.5">ID: {shop._id?.slice(-6)}</p>
                           </div>
                         </div>
@@ -237,7 +237,7 @@ function Dashboard() {
                           </button>
                           <button
                             onClick={() => getDirections(shop.location.lat, shop.location.lng)}
-                            className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all active:scale-90"
+                            className="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all active:scale-90"
                             title="Directions"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -263,13 +263,13 @@ function Dashboard() {
             ></div>
 
             <div className="relative inline-block align-middle bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:w-full sm:max-w-lg">
-              <div className="bg-indigo-600 px-8 py-10 text-white relative">
-                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/50 to-transparent"></div>
+              <div className="bg-green-600 px-8 py-10 text-white relative">
+                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-green-500/50 to-transparent"></div>
                  <div className="relative z-10 flex justify-between items-start">
                     <div>
-                        <span className="text-indigo-100 text-xs font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full mb-3 inline-block">Shop Profile</span>
+                        <span className="text-green-100 text-xs font-bold uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full mb-3 inline-block">Shop Profile</span>
                         <h3 className="text-3xl font-extrabold tracking-tight">{selectedShopDetails.shopName}</h3>
-                        <p className="text-indigo-100 font-medium mt-1 flex items-center gap-1.5">
+                        <p className="text-green-100 font-medium mt-1 flex items-center gap-1.5">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             {selectedShopDetails.ownerName}
                         </p>
@@ -288,7 +288,7 @@ function Dashboard() {
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Owner Birthday</p>
                     <p className="text-gray-900 font-bold flex items-center gap-2">
-                       <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z" /></svg>
+                       <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z" /></svg>
                        {new Date(selectedShopDetails.ownerBirthday).toLocaleDateString(undefined, { dateStyle: 'long' })}
                     </p>
                   </div>
@@ -314,7 +314,7 @@ function Dashboard() {
                 {selectedShopDetails.notes && (
                   <div className="space-y-2">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Field Notes</p>
-                    <p className="text-gray-600 font-medium bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 italic">
+                    <p className="text-gray-600 font-medium bg-green-50/50 p-4 rounded-2xl border border-green-100/50 italic">
                       "{selectedShopDetails.notes}"
                     </p>
                   </div>

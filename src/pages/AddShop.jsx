@@ -174,10 +174,10 @@ function AddShop() {
         <button
           type="button"
           onClick={getCurrentLocation}
-          className="btn-secondary active:bg-indigo-50 active:text-indigo-600 active:border-indigo-200"
+          className="btn-secondary active:bg-green-50 active:text-green-600 active:border-green-200"
         >
           <svg
-            className="w-5 h-5 text-indigo-500"
+            className="w-5 h-5 text-green-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -221,7 +221,7 @@ function AddShop() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left Col: Map */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="glass-card rounded-[2rem] p-3 shadow-2xl shadow-indigo-100">
+          <div className="glass-card rounded-[2rem] p-3 shadow-2xl shadow-green-100">
             <GoogleMap
               mapContainerStyle={mapContainerStyle}
               center={mapCenter}
@@ -236,8 +236,8 @@ function AddShop() {
               />
             </GoogleMap>
           </div>
-          <div className="flex items-center gap-3 px-6 py-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+          <div className="flex items-center gap-3 px-6 py-4 bg-green-50/50 rounded-2xl border border-green-100/50">
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -252,7 +252,7 @@ function AddShop() {
                 />
               </svg>
             </div>
-            <p className="text-sm text-indigo-700 font-medium">
+            <p className="text-sm text-green-700 font-medium">
               Drag the marker to the exact shop location. Address will update
               automatically.
             </p>
@@ -375,7 +375,7 @@ function AddShop() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-4 text-lg shadow-indigo-200 disabled:opacity-50"
+                className="btn-primary w-full py-4 text-lg shadow-green-200 disabled:opacity-50"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
