@@ -68,7 +68,7 @@ function Dashboard() {
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
             Shop Dashboard
           </h2>
           <p className="text-gray-500 mt-1 font-medium">
@@ -77,12 +77,16 @@ function Dashboard() {
         </div>
 
         <div className="relative w-full lg:w-[400px] group">
+          <label htmlFor="shop-search" className="sr-only">
+            Search shops
+          </label>
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <svg
               className="w-5 h-5 text-gray-400 group-focus-within:text-green-500 transition-colors"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -93,6 +97,7 @@ function Dashboard() {
             </svg>
           </div>
           <input
+            id="shop-search"
             type="text"
             placeholder="Search by shop, owner or address..."
             value={searchTerm}
@@ -103,12 +108,16 @@ function Dashboard() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center gap-3">
+        <div
+          role="alert"
+          className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center gap-3"
+        >
           <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -123,7 +132,7 @@ function Dashboard() {
 
       {/* Birthday Banner */}
       {upcomingBirthdays.length > 0 ? (
-        <section className="relative overflow-hidden glass-card rounded-3xl p-8">
+        <section className="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
@@ -135,6 +144,7 @@ function Dashboard() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -149,7 +159,7 @@ function Dashboard() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {upcomingBirthdays.map((shop) => (
                 <div
                   key={shop._id}
@@ -188,6 +198,7 @@ function Dashboard() {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -203,7 +214,7 @@ function Dashboard() {
                     </div>
                     <button
                       onClick={() => navigate(`/shop/${shop._id}`)}
-                      className="text-green-600 hover:text-green-700 font-bold text-xs"
+                      className="text-green-600 hover:text-green-700 font-bold text-xs py-1"
                     >
                       View Details
                     </button>
@@ -221,6 +232,7 @@ function Dashboard() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -245,7 +257,8 @@ function Dashboard() {
           </span>
         </div>
 
-        <div className="glass-card rounded-3xl overflow-hidden shadow-sm">
+        {/* Desktop table */}
+        <div className="glass-card rounded-3xl overflow-hidden shadow-sm hidden md:block">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -268,28 +281,7 @@ function Dashboard() {
                 {filteredShops.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-8 py-20 text-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
-                          <svg
-                            className="w-8 h-8"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-gray-400 font-medium">
-                          {searchTerm
-                            ? `No results found for "${searchTerm}"`
-                            : "Your shop list is empty"}
-                        </p>
-                      </div>
+                      <EmptyState searchTerm={searchTerm} />
                     </td>
                   </tr>
                 ) : (
@@ -306,6 +298,7 @@ function Dashboard() {
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -333,6 +326,7 @@ function Dashboard() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -359,14 +353,15 @@ function Dashboard() {
                         <div className="flex items-center justify-center gap-3">
                           <button
                             onClick={() => navigate(`/shop/${shop._id}`)}
-                            className="p-2.5 bg-gray-100 text-gray-500 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-90"
-                            title="View Details"
+                            className="p-3 bg-gray-100 text-gray-500 rounded-xl hover:bg-gray-200 hover:text-gray-700 transition-all active:scale-90"
+                            aria-label={`View details for ${shop.shopName}`}
                           >
                             <svg
                               className="w-5 h-5"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -389,14 +384,15 @@ function Dashboard() {
                                 shop.location.lng,
                               )
                             }
-                            className="p-2.5 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all active:scale-90"
-                            title="Directions"
+                            className="p-3 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all active:scale-90"
+                            aria-label={`Get directions to ${shop.shopName}`}
                           >
                             <svg
                               className="w-5 h-5"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
+                              aria-hidden="true"
                             >
                               <path
                                 strokeLinecap="round"
@@ -421,7 +417,153 @@ function Dashboard() {
             </table>
           </div>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-4">
+          {filteredShops.length === 0 ? (
+            <div className="glass-card rounded-2xl p-8 flex flex-col items-center gap-3">
+              <EmptyState searchTerm={searchTerm} />
+            </div>
+          ) : (
+            filteredShops.map((shop) => (
+              <div
+                key={shop._id}
+                className="glass-card rounded-2xl p-5 space-y-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-gray-900 truncate">
+                        {shop.shopName}
+                      </p>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-tight mt-0.5">
+                        ID: {shop._id?.slice(-6)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p className="font-semibold">
+                    {shop.ownerName}{" "}
+                    <span className="text-gray-400 font-medium">
+                      · {new Date(shop.ownerBirthday).toLocaleDateString()}
+                    </span>
+                  </p>
+                  <p className="text-gray-600 font-medium leading-snug">
+                    {shop.address}
+                  </p>
+                  <p className="text-[10px] font-mono text-gray-400">
+                    {shop.location?.lat?.toFixed(4)},{" "}
+                    {shop.location?.lng?.toFixed(4)}
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={() => navigate(`/shop/${shop._id}`)}
+                    className="flex-1 btn-secondary py-2.5 text-sm"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                    Details
+                  </button>
+                  <button
+                    onClick={() =>
+                      getDirections(shop.location.lat, shop.location.lng)
+                    }
+                    className="flex-1 btn-secondary py-2.5 text-sm"
+                  >
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    Directions
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function EmptyState({ searchTerm }) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+        <svg
+          className="w-8 h-8"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+      </div>
+      <p className="text-gray-400 font-medium">
+        {searchTerm
+          ? `No results found for "${searchTerm}"`
+          : "Your shop list is empty"}
+      </p>
     </div>
   );
 }

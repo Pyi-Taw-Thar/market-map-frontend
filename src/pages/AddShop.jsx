@@ -200,12 +200,16 @@ function AddShop() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center gap-3">
+        <div
+          role="alert"
+          className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center gap-3"
+        >
           <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -267,10 +271,14 @@ function AddShop() {
           >
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                <label
+                  htmlFor="shopName"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
                   Shop Name
                 </label>
                 <input
+                  id="shopName"
                   type="text"
                   name="shopName"
                   value={formData.shopName}
@@ -282,10 +290,14 @@ function AddShop() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                <label
+                  htmlFor="ownerName"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
                   Owner Full Name
                 </label>
                 <input
+                  id="ownerName"
                   type="text"
                   name="ownerName"
                   value={formData.ownerName}
@@ -297,10 +309,14 @@ function AddShop() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                <label
+                  htmlFor="ownerBirthday"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
                   Owner Birthday
                 </label>
                 <input
+                  id="ownerBirthday"
                   type="date"
                   name="ownerBirthday"
                   value={formData.ownerBirthday}
@@ -311,10 +327,14 @@ function AddShop() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                <label
+                  htmlFor="address"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
                   Detected Address
                 </label>
                 <textarea
+                  id="address"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
@@ -325,12 +345,16 @@ function AddShop() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  <label
+                    htmlFor="lat"
+                    className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                  >
                     Lat
                   </label>
                   <input
+                    id="lat"
                     type="number"
                     name="lat"
                     value={formData.location.lat}
@@ -341,10 +365,14 @@ function AddShop() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  <label
+                    htmlFor="lng"
+                    className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                  >
                     Lng
                   </label>
                   <input
+                    id="lng"
                     type="number"
                     name="lng"
                     value={formData.location.lng}
@@ -357,10 +385,14 @@ function AddShop() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                <label
+                  htmlFor="notes"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
                   Notes (Optional)
                 </label>
                 <input
+                  id="notes"
                   type="text"
                   name="notes"
                   value={formData.notes}
