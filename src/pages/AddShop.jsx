@@ -49,6 +49,7 @@ function AddShop() {
     ownerName: "",
     address: "",
     ownerBirthday: "",
+    phoneNumber: "",
     notes: "",
     location: {
       lat: defaultCenter.lat,
@@ -323,6 +324,24 @@ function AddShop() {
                   onChange={handleChange}
                   required
                   className="input-field"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phoneNumber"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  Owner Phone Number (Optional)
+                </label>
+                <input
+                  id="phoneNumber"
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="e.g. +95912345678"
                 />
               </div>
 

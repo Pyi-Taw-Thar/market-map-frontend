@@ -89,7 +89,7 @@ function App() {
               <div className="absolute top-0 left-0 w-full h-full border-4 border-green-100 rounded-full"></div>
               <div className="absolute top-0 left-0 w-full h-full border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
             </div>
-            <p className="text-gray-500 font-medium">Loading PTT Marketing Map...</p>
+            <p className="text-gray-500 font-medium">Loading Marketing Software...</p>
           </div>
         </div>
       }
@@ -131,7 +131,7 @@ function App() {
                   </svg>
                 </div>
                 <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-                  PTT Marketing Map
+                  Marketing Software
                 </h1>
               </div>
 

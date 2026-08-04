@@ -92,7 +92,7 @@ function ShopDetail() {
       </div>
 
       <div className="glass-card rounded-3xl px-6 py-8 sm:px-8 space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Owner Birthday</p>
             <p className="text-gray-900 font-bold flex items-center gap-2">
@@ -101,6 +101,21 @@ function ShopDetail() {
               </svg>
               {new Date(shop.ownerBirthday).toLocaleDateString(undefined, { dateStyle: 'long' })}
             </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone Number</p>
+            {shop.phoneNumber ? (
+              <a href={`tel:${shop.phoneNumber}`} className="text-green-600 hover:text-green-700 font-bold flex items-center gap-2 transition-colors">
+                <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                {shop.phoneNumber}
+              </a>
+            ) : (
+              <p className="text-gray-400 font-semibold italic flex items-center gap-2">
+                Not Provided
+              </p>
+            )}
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">GPS Status</p>
