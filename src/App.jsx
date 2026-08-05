@@ -69,6 +69,8 @@ const navItems = [
   },
 ];
 
+const LIBRARIES = ["places"];
+
 function App() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -81,7 +83,7 @@ function App() {
   return (
     <LoadScript
       googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-      libraries={["places"]}
+      libraries={LIBRARIES}
       loadingElement={
         <div className="min-h-screen bg-[#f0fdf4] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">

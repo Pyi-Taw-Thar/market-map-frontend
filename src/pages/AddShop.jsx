@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { shopService } from "../services/api";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 const mapContainerStyle = {
   width: "100%",
@@ -147,6 +147,9 @@ function AddShop() {
           lng: Number(formData.location.lng),
         },
       };
+      if (!submissionData.ownerBirthday) {
+        delete submissionData.ownerBirthday;
+      }
       await shopService.createShop(submissionData);
       navigate("/");
     } catch (err) {
@@ -233,7 +236,7 @@ function AddShop() {
               zoom={15}
               options={mapOptions}
             >
-              <Marker
+              <MarkerF
                 key={`${markerPosition.lat}-${markerPosition.lng}`}
                 position={markerPosition}
                 draggable={true}
@@ -309,23 +312,6 @@ function AddShop() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="ownerBirthday"
-                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
-                >
-                  Owner Birthday
-                </label>
-                <input
-                  id="ownerBirthday"
-                  type="date"
-                  name="ownerBirthday"
-                  value={formData.ownerBirthday}
-                  onChange={handleChange}
-                  required
-                  className="input-field"
-                />
-              </div>
 
               <div>
                 <label

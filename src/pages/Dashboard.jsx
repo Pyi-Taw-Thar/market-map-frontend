@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { shopService } from "../services/api";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [shopToDelete, setShopToDelete] = useState(null);
 
   useEffect(() => {
     fetchShops();
@@ -48,6 +51,26 @@ function Dashboard() {
       `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
       "_blank",
     );
+  };
+
+  const triggerDelete = (id, shopName) => {
+    setShopToDelete({ id, shopName });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!shopToDelete) return;
+    try {
+      setIsDeleteModalOpen(false);
+      setLoading(true);
+      await shopService.deleteShop(shopToDelete.id);
+      await Promise.all([fetchShops(), fetchUpcomingBirthdays()]);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete shop");
+      setLoading(false);
+    } finally {
+      setShopToDelete(null);
+    }
   };
 
   if (loading) {
@@ -131,123 +154,7 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Birthday Banner */}
-      {upcomingBirthdays.length > 0 ? (
-        <section className="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
-          <div className="relative">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-green-100 text-green-600 rounded-xl">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-700 to-emerald-700">
-                Upcoming Celebrations
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingBirthdays.map((shop) => (
-                <div
-                  key={shop._id}
-                  className="group bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-green-50 transition-colors">
-                      <span className="text-xl font-bold text-green-600">
-                        {shop.ownerName.charAt(0)}
-                      </span>
-                    </div>
-                    <div
-                      className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${
-                        shop.daysUntilBirthday === 0
-                          ? "bg-red-100 text-red-600"
-                          : "bg-green-100 text-green-600"
-                      }`}
-                    >
-                      {shop.daysUntilBirthday === 0
-                        ? "Today"
-                        : `in ${shop.daysUntilBirthday} days`}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900 line-clamp-1">
-                      {shop.ownerName}
-                    </h4>
-                    <p className="text-sm text-gray-500 font-medium">
-                      {shop.shopName}
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {new Date(shop.upcomingBirthdayDate).toLocaleDateString(
-                        undefined,
-                        { month: "short", day: "numeric" },
-                      )}
-                    </div>
-                    <button
-                      onClick={() => navigate(`/shop/${shop._id}`)}
-                      className="text-green-600 hover:text-green-700 font-bold text-xs py-1"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : (
-        <div className="glass-card rounded-3xl p-6 flex items-center gap-4 border-dashed border-2 border-gray-200 bg-transparent shadow-none">
-          <div className="p-2 bg-gray-100 text-gray-400 rounded-xl">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-              />
-            </svg>
-          </div>
-          <p className="text-gray-500 font-semibold tracking-tight">
-            No birthdays in the coming week
-          </p>
-        </div>
-      )}
 
       {/* Main Shops List */}
       <div className="space-y-6">
@@ -321,23 +228,6 @@ function Dashboard() {
                       </td>
                       <td className="px-8 py-6 text-gray-700">
                         <p className="font-semibold">{shop.ownerName}</p>
-                        <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z"
-                            />
-                          </svg>
-                          {new Date(shop.ownerBirthday).toLocaleDateString()}
-                        </p>
                         {shop.phoneNumber && (
                           <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-1 font-medium">
                             <svg
@@ -428,6 +318,26 @@ function Dashboard() {
                               />
                             </svg>
                           </button>
+                          <button
+                            onClick={() => triggerDelete(shop._id, shop.shopName)}
+                            className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all active:scale-90"
+                            aria-label={`Delete ${shop.shopName}`}
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -481,10 +391,7 @@ function Dashboard() {
 
                 <div className="space-y-2 text-sm text-gray-700">
                   <p className="font-semibold">
-                    {shop.ownerName}{" "}
-                    <span className="text-gray-400 font-medium">
-                      · {new Date(shop.ownerBirthday).toLocaleDateString()}
-                    </span>
+                    {shop.ownerName}
                   </p>
                   {shop.phoneNumber && (
                     <p className="text-xs text-gray-500 flex items-center gap-1.5 font-medium">
@@ -569,12 +476,41 @@ function Dashboard() {
                     </svg>
                     Directions
                   </button>
+                  <button
+                    onClick={() => triggerDelete(shop._id, shop.shopName)}
+                    className="flex-1 px-3 py-2.5 text-sm bg-red-50 text-red-600 rounded-xl hover:bg-red-100 font-bold flex items-center justify-center gap-1.5 transition-all border border-red-100"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                    Delete
+                  </button>
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setShopToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        itemName={shopToDelete?.shopName || ""}
+      />
     </div>
   );
 }
