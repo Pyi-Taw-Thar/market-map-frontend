@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { shopService } from "../services/api";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 const mapContainerStyle = {
   width: "100%",
@@ -10,8 +10,8 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: 40.7128,
-  lng: -74.006,
+  lat: 16.8409,
+  lng: 96.1735,
 };
 
 const mapOptions = {
@@ -43,20 +43,36 @@ const mapOptions = {
 
 function AddShop() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const initialLat =
+    location.state?.lat ||
+    (searchParams.get("lat") ? parseFloat(searchParams.get("lat")) : null) ||
+    defaultCenter.lat;
+  const initialLng =
+    location.state?.lng ||
+    (searchParams.get("lng") ? parseFloat(searchParams.get("lng")) : null) ||
+    defaultCenter.lng;
+  const initialAddress = location.state?.address || searchParams.get("address") || "";
 
   const [formData, setFormData] = useState({
     shopName: "",
     ownerName: "",
-    address: "",
+    phoneNumber: "",
+    address: initialAddress,
     ownerBirthday: "",
     notes: "",
     location: {
-      lat: defaultCenter.lat,
-      lng: defaultCenter.lng,
+      lat: initialLat,
+      lng: initialLng,
     },
   });
 
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [mapCenter, setMapCenter] = useState({
+    lat: initialLat,
+    lng: initialLng,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -128,6 +144,12 @@ function AddShop() {
     );
   };
 
+  useEffect(() => {
+    if (!initialAddress && initialLat && initialLng) {
+      geocodePosition(initialLat, initialLng);
+    }
+  }, [initialAddress, initialLat, initialLng, geocodePosition]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isNaN(formData.location.lat) || isNaN(formData.location.lng)) {
@@ -146,8 +168,14 @@ function AddShop() {
           lng: Number(formData.location.lng),
         },
       };
-      await shopService.createShop(submissionData);
-      navigate("/");
+      const createdShop = await shopService.createShop(submissionData);
+      navigate("/map", {
+        state: {
+          newShopId: createdShop._id,
+          newShopLocation: createdShop.location,
+          newShopName: createdShop.shopName,
+        },
+      });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create shop");
     } finally {
@@ -232,9 +260,12 @@ function AddShop() {
               zoom={15}
               options={mapOptions}
             >
-              <Marker
+              <MarkerF
                 key={`${markerPosition.lat}-${markerPosition.lng}`}
-                position={markerPosition}
+                position={{
+                  lat: Number(markerPosition.lat),
+                  lng: Number(markerPosition.lng),
+                }}
                 draggable={true}
                 onDragEnd={handleDragEnd}
               />
@@ -305,6 +336,24 @@ function AddShop() {
                   required
                   className="input-field"
                   placeholder="e.g. John Doe"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phoneNumber"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  Phone Number
+                </label>
+                <input
+                  id="phoneNumber"
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="e.g. 09123456789"
                 />
               </div>
 
