@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { shopService } from '../services/api';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
+import { MYANMAR_STATES, matchStateFromGeocoder } from '../constants/regions';
+import TownshipInput from '../components/TownshipInput';
 
 const mapContainerStyle = {
   width: '100%',
@@ -44,6 +46,8 @@ function EditShop() {
     shopName: '',
     ownerName: '',
     phoneNumber: '',
+    state: '',
+    township: '',
     address: '',
     ownerBirthday: '',
     notes: '',
@@ -79,6 +83,8 @@ function EditShop() {
         shopName: data.shopName || '',
         ownerName: data.ownerName || '',
         phoneNumber: data.phoneNumber || '',
+        state: data.state || '',
+        township: data.township || '',
         address: data.address || '',
         ownerBirthday: birthdayFormatted,
         notes: data.notes || '',
@@ -114,9 +120,30 @@ function EditShop() {
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
       if (status === 'OK' && results[0]) {
+        let detectedState = '';
+        let detectedTownship = '';
+
+        const comps = results[0].address_components || [];
+        for (const comp of comps) {
+          const types = comp.types || [];
+          if (types.includes('administrative_area_level_1')) {
+            detectedState = matchStateFromGeocoder(comp.long_name);
+          } else if (
+            types.includes('sublocality_level_1') ||
+            types.includes('locality') ||
+            types.includes('administrative_area_level_2')
+          ) {
+            if (!detectedTownship) {
+              detectedTownship = comp.long_name.replace(/township/gi, '').trim();
+            }
+          }
+        }
+
         setFormData((prev) => ({
           ...prev,
           address: results[0].formatted_address,
+          state: detectedState || prev.state,
+          township: detectedTownship || prev.township,
         }));
       }
     });
@@ -176,6 +203,8 @@ function EditShop() {
         shopName: formData.shopName.trim(),
         ownerName: formData.ownerName.trim(),
         phoneNumber: formData.phoneNumber.trim(),
+        state: formData.state ? formData.state.trim() : '',
+        township: formData.township ? formData.township.trim() : '',
         address: formData.address.trim(),
         ownerBirthday: formData.ownerBirthday ? new Date(formData.ownerBirthday) : undefined,
         notes: formData.notes.trim(),
@@ -378,6 +407,48 @@ function EditShop() {
                   onChange={handleChange}
                   className="input-field"
                   placeholder="e.g. 09123456789"
+                />
+              </div>
+
+              {/* State & Township Fields */}
+              <div>
+                <label
+                  htmlFor="state"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  State / Region (တိုင်း/ပြည်နယ်)
+                </label>
+                <select
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="input-field bg-white"
+                >
+                  <option value="">-- တိုင်း/ပြည်နယ် ရွေးချယ်ပါ --</option>
+                  {MYANMAR_STATES.map((s) => (
+                    <option key={s.id} value={s.nameEn}>
+                      {s.nameMm} ({s.nameEn})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="township"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  Township (မြို့နယ်)
+                </label>
+                <TownshipInput
+                  id="township"
+                  name="township"
+                  value={formData.township}
+                  stateFilter={formData.state}
+                  onChange={handleChange}
+                  placeholder="ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ"
+                  className="input-field"
                 />
               </div>
 

@@ -110,19 +110,47 @@ function ShopDetail() {
       <div className="glass-card rounded-3xl px-6 py-8 sm:px-8 space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-1">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone Number</p>
+            <p className="text-gray-900 font-bold flex items-center gap-2">
+              <svg aria-hidden="true" className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              {shop.phoneNumber ? (
+                <a href={`tel:${shop.phoneNumber}`} className="text-green-700 hover:underline">
+                  {shop.phoneNumber}
+                </a>
+              ) : (
+                <span className="text-gray-400 font-normal">မရှိပါ</span>
+              )}
+            </p>
+          </div>
+          <div className="space-y-1">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Owner Birthday</p>
             <p className="text-gray-900 font-bold flex items-center gap-2">
               <svg aria-hidden="true" className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z" />
               </svg>
-              {new Date(shop.ownerBirthday).toLocaleDateString(undefined, { dateStyle: 'long' })}
+              {shop.ownerBirthday ? (
+                new Date(shop.ownerBirthday).toLocaleDateString(undefined, { dateStyle: 'long' })
+              ) : (
+                <span className="text-gray-400 font-normal">မရှိပါ</span>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* State & Township Details */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 bg-emerald-50/40 rounded-2xl border border-emerald-100/60">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest">State / Region (တိုင်းဒေသကြီး/ပြည်နယ်)</p>
+            <p className="text-gray-900 font-bold text-sm">
+              {shop.state || <span className="text-gray-400 font-normal">ဖော်ပြထားခြင်းမရှိပါ</span>}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">GPS Status</p>
-            <p className="text-green-600 font-bold flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              Active Link
+            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest">Township (မြို့နယ်)</p>
+            <p className="text-gray-900 font-bold text-sm">
+              {shop.township || <span className="text-gray-400 font-normal">ဖော်ပြထားခြင်းမရှိပါ</span>}
             </p>
           </div>
         </div>

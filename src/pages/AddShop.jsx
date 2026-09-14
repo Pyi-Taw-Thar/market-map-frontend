@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { shopService } from "../services/api";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import { MYANMAR_STATES, matchStateFromGeocoder } from "../constants/regions";
+import TownshipInput from "../components/TownshipInput";
 
 const mapContainerStyle = {
   width: "100%",
@@ -60,6 +62,8 @@ function AddShop() {
     shopName: "",
     ownerName: "",
     phoneNumber: "",
+    state: "",
+    township: "",
     address: initialAddress,
     ownerBirthday: "",
     notes: "",
@@ -97,9 +101,30 @@ function AddShop() {
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
       if (status === "OK" && results[0]) {
+        let detectedState = "";
+        let detectedTownship = "";
+
+        const comps = results[0].address_components || [];
+        for (const comp of comps) {
+          const types = comp.types || [];
+          if (types.includes("administrative_area_level_1")) {
+            detectedState = matchStateFromGeocoder(comp.long_name);
+          } else if (
+            types.includes("sublocality_level_1") ||
+            types.includes("locality") ||
+            types.includes("administrative_area_level_2")
+          ) {
+            if (!detectedTownship) {
+              detectedTownship = comp.long_name.replace(/township/gi, "").trim();
+            }
+          }
+        }
+
         setFormData((prev) => ({
           ...prev,
           address: results[0].formatted_address,
+          state: detectedState || prev.state,
+          township: detectedTownship || prev.township,
         }));
       }
     });
@@ -357,12 +382,54 @@ function AddShop() {
                 />
               </div>
 
+              {/* State & Township Fields */}
+              <div>
+                <label
+                  htmlFor="state"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  State / Region (တိုင်း/ပြည်နယ်)
+                </label>
+                <select
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="input-field bg-white"
+                >
+                  <option value="">-- တိုင်း/ပြည်နယ် ရွေးချယ်ပါ --</option>
+                  {MYANMAR_STATES.map((s) => (
+                    <option key={s.id} value={s.nameEn}>
+                      {s.nameMm} ({s.nameEn})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="township"
+                  className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
+                >
+                  Township (မြို့နယ်)
+                </label>
+                <TownshipInput
+                  id="township"
+                  name="township"
+                  value={formData.township}
+                  stateFilter={formData.state}
+                  onChange={handleChange}
+                  placeholder="ရွေးချယ်ပါ (သို့) ရိုက်ထည့်ပါ"
+                  className="input-field"
+                />
+              </div>
+
               <div>
                 <label
                   htmlFor="ownerBirthday"
                   className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1"
                 >
-                  Owner Birthday
+                  Owner Birthday (Optional)
                 </label>
                 <input
                   id="ownerBirthday"
@@ -370,7 +437,6 @@ function AddShop() {
                   name="ownerBirthday"
                   value={formData.ownerBirthday}
                   onChange={handleChange}
-                  required
                   className="input-field"
                 />
               </div>

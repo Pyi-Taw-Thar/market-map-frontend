@@ -10,8 +10,8 @@ const api = axios.create({
 });
 
 export const shopService = {
-  getAllShops: async () => {
-    const response = await api.get('/shops');
+  getAllShops: async (params = {}) => {
+    const response = await api.get('/shops', { params });
     return response.data;
   },
 
@@ -32,6 +32,12 @@ export const shopService = {
 
   updateShop: async (id, shopData) => {
     const response = await api.put(`/shops/${id}`, shopData);
+    return response.data;
+  },
+
+  getMetaTownships: async (state = '') => {
+    const url = state ? `/shops/meta/townships?state=${encodeURIComponent(state)}` : '/shops/meta/townships';
+    const response = await api.get(url);
     return response.data;
   },
 

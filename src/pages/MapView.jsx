@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { GoogleMap, MarkerF, InfoWindowF } from '@react-google-maps/api'
 import { shopService } from '../services/api'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import { MYANMAR_STATES, matchStateFromGeocoder } from '../constants/regions'
+import TownshipInput from '../components/TownshipInput'
 
 const mapContainerStyle = {
   width: '100%',
@@ -75,6 +77,8 @@ function MapView() {
     shopName: '',
     ownerName: '',
     phoneNumber: '',
+    state: '',
+    township: '',
     ownerBirthday: '',
     address: '',
     notes: '',
@@ -161,8 +165,7 @@ function MapView() {
             : 'ဆိုင်အသစ်ကို မြေပုံပေါ်တွင် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ!'
         )
       } else if (data.length > 0) {
-        // Center on the first shop if available
-        setSelectedShop(data[0])
+        // Center on the first shop if available without automatically opening the popup modal
         setMapCenter({
           lat: Number(data[0].location.lat),
           lng: Number(data[0].location.lng),
@@ -173,6 +176,27 @@ function MapView() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Helper to extract state and township from geocoder address components
+  const extractRegionAndTownship = (components) => {
+    let state = ''
+    let township = ''
+    for (const comp of components || []) {
+      const types = comp.types || []
+      if (types.includes('administrative_area_level_1')) {
+        state = matchStateFromGeocoder(comp.long_name)
+      } else if (
+        types.includes('sublocality_level_1') ||
+        types.includes('locality') ||
+        types.includes('administrative_area_level_2')
+      ) {
+        if (!township) {
+          township = comp.long_name.replace(/township/gi, '').trim()
+        }
+      }
+    }
+    return { state, township }
   }
 
   // Handle clicking on map to place a pin
@@ -191,6 +215,8 @@ function MapView() {
       shopName: '',
       ownerName: '',
       phoneNumber: '',
+      state: '',
+      township: '',
       ownerBirthday: '',
       address: 'တည်နေရာ လိပ်စာ ရှာဖွေနေပါသည်...',
       notes: '',
@@ -201,9 +227,12 @@ function MapView() {
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
         setIsGeocoding(false)
         if (status === 'OK' && results && results[0]) {
+          const { state, township } = extractRegionAndTownship(results[0].address_components)
           setQuickAddForm((prev) => ({
             ...prev,
             address: results[0].formatted_address,
+            state: state || prev.state,
+            township: township || prev.township,
           }))
         } else {
           setQuickAddForm((prev) => ({
@@ -235,9 +264,12 @@ function MapView() {
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
         setIsGeocoding(false)
         if (status === 'OK' && results && results[0]) {
+          const { state, township } = extractRegionAndTownship(results[0].address_components)
           setQuickAddForm((prev) => ({
             ...prev,
             address: results[0].formatted_address,
+            state: state || prev.state,
+            township: township || prev.township,
           }))
         }
       })
@@ -278,6 +310,8 @@ function MapView() {
         shopName: quickAddForm.shopName.trim(),
         ownerName: quickAddForm.ownerName.trim(),
         phoneNumber: quickAddForm.phoneNumber.trim(),
+        state: quickAddForm.state ? quickAddForm.state.trim() : '',
+        township: quickAddForm.township ? quickAddForm.township.trim() : '',
         address: quickAddForm.address.trim() || `${newPin.lat.toFixed(6)}, ${newPin.lng.toFixed(6)}`,
         ownerBirthday: quickAddForm.ownerBirthday ? new Date(quickAddForm.ownerBirthday) : undefined,
         notes: quickAddForm.notes.trim(),
@@ -348,25 +382,6 @@ function MapView() {
             Add Shop
           </button>
         </div>
-      </div>
-
-      {/* Helpful Hint Banner */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 border border-green-200/60 rounded-2xl px-5 py-3 text-sm text-green-800 shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="text-lg">📌</span>
-          <span className="font-semibold">
-            အကြံပြုချက်: မြေပုံပေါ်တွင် ဆိုင်အသစ်ထည့်သွင်းရန် သင်လိုချင်သော နေရာကို <strong className="text-green-900 underline underline-offset-2">Click နှိပ်၍ Pin ထောက်ပါ</strong>။
-          </span>
-        </div>
-        {newPin && (
-          <button
-            type="button"
-            onClick={handleCancelNewPin}
-            className="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold px-3 py-1.5 rounded-lg transition-colors ml-3 whitespace-nowrap"
-          >
-            Pin ဖျက်မည်
-          </button>
-        )}
       </div>
 
       {/* Toast Notification */}
@@ -450,6 +465,14 @@ function MapView() {
                   <div>
                     <h3 className="font-bold text-gray-900 leading-tight">{selectedShop.shopName}</h3>
                     <p className="text-xs font-semibold text-gray-400 uppercase mt-0.5 tracking-tight">{selectedShop.ownerName}</p>
+                    {(selectedShop.township || selectedShop.state) && (
+                      <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                        <span>📍</span>
+                        <span>
+                          {[selectedShop.township, selectedShop.state].filter(Boolean).join(', ')}
+                        </span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -629,7 +652,7 @@ function MapView() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">
-                    Birthday (မွေးနေ့)
+                    Birthday (မွေးနေ့ - Optional)
                   </label>
                   <input
                     type="date"
@@ -639,6 +662,41 @@ function MapView() {
                     className="input-field py-2.5 text-sm"
                   />
                 </div>
+              </div>
+
+              {/* State & Township in Quick Add */}
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">
+                  State / Region (တိုင်း/ပြည်နယ်)
+                </label>
+                <select
+                  name="state"
+                  value={quickAddForm.state}
+                  onChange={handleQuickAddChange}
+                  className="input-field py-2.5 text-xs bg-white"
+                >
+                  <option value="">-- တိုင်း/ပြည်နယ် ရွေးပါ --</option>
+                  {MYANMAR_STATES.map((s) => (
+                    <option key={s.id} value={s.nameEn}>
+                      {s.nameMm} ({s.nameEn})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">
+                  Township (မြို့နယ်)
+                </label>
+                <TownshipInput
+                  id="quick_township"
+                  name="township"
+                  value={quickAddForm.township}
+                  stateFilter={quickAddForm.state}
+                  onChange={handleQuickAddChange}
+                  placeholder="ရွေးပါ (သို့) ရိုက်ထည့်ပါ"
+                  className="input-field py-2.5 text-xs"
+                />
               </div>
 
               <div>

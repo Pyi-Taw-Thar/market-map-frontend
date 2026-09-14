@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { shopService } from "../services/api";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import { MYANMAR_STATES } from "../constants/regions";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [shops, setShops] = useState([]);
   const [upcomingBirthdays, setUpcomingBirthdays] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedTownship, setSelectedTownship] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingShop, setDeletingShop] = useState(null);
@@ -35,19 +38,57 @@ function Dashboard() {
     }
   };
 
+  const [shopsLoading, setShopsLoading] = useState(false);
+
   useEffect(() => {
-    fetchShops();
     fetchUpcomingBirthdays();
   }, []);
 
+  // Fetch shops directly from Backend API whenever state, township or search term changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchShops();
+    }, 250); // 250ms debounce for typing search
+
+    return () => clearTimeout(timer);
+  }, [selectedState, selectedTownship, searchTerm]);
+
+  // Load all available townships for the dropdown from Backend API
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTownshipOptions = async () => {
+      try {
+        const data = await shopService.getMetaTownships(selectedState);
+        if (isMounted && Array.isArray(data)) {
+          setAvailableTownships(data);
+        }
+      } catch (err) {
+        console.error("Failed to load townships:", err);
+      }
+    };
+    fetchTownshipOptions();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedState]);
+
+  const [availableTownships, setAvailableTownships] = useState([]);
+
   const fetchShops = async () => {
+    setShopsLoading(true);
     try {
-      const data = await shopService.getAllShops();
+      const params = {};
+      if (selectedState) params.state = selectedState;
+      if (selectedTownship) params.township = selectedTownship;
+      if (searchTerm.trim()) params.search = searchTerm.trim();
+
+      const data = await shopService.getAllShops(params);
       setShops(data);
     } catch (err) {
       setError("Failed to fetch shops");
     } finally {
       setLoading(false);
+      setShopsLoading(false);
     }
   };
 
@@ -60,12 +101,16 @@ function Dashboard() {
     }
   };
 
-  const filteredShops = shops.filter(
-    (shop) =>
-      shop.shopName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shop.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shop.address.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const handleStateFilterChange = (e) => {
+    setSelectedState(e.target.value);
+    setSelectedTownship(""); // Reset township when state changes
+  };
+
+  const clearFilters = () => {
+    setSelectedState("");
+    setSelectedTownship("");
+    setSearchTerm("");
+  };
 
   const getDirections = (lat, lng) => {
     window.open(
@@ -91,44 +136,94 @@ function Dashboard() {
   return (
     <div className="animate-in space-y-10">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            Shop Dashboard
-          </h2>
-          <p className="text-gray-500 mt-1 font-medium">
-            Manage and monitor field operations
-          </p>
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+              Shop Dashboard
+            </h2>
+            <p className="text-gray-500 mt-1 font-medium">
+              Manage and monitor field operations
+            </p>
+          </div>
+          {(selectedState || selectedTownship || searchTerm) && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
+            >
+              <span>✕</span>
+              <span>Filter များ ရှင်းထုတ်မည် (Clear All)</span>
+            </button>
+          )}
         </div>
 
-        <div className="relative w-full lg:w-[400px] group">
-          <label htmlFor="shop-search" className="sr-only">
-            Search shops
-          </label>
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="w-5 h-5 text-gray-400 group-focus-within:text-green-500 transition-colors"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+        {/* Filter Controls Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-white/60 backdrop-blur-md p-3.5 rounded-2xl border border-gray-200/70 shadow-sm">
+          {/* Search Box */}
+          <div className="md:col-span-5 relative group">
+            <label htmlFor="shop-search" className="sr-only">
+              Search shops
+            </label>
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <svg
+                className="w-4 h-4 text-gray-400 group-focus-within:text-green-500 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <input
+              id="shop-search"
+              type="text"
+              placeholder="ဆိုင်အမည်၊ ပိုင်ရှင် သို့ လိပ်စာဖြင့် ရှာရန်..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field pl-10 py-2.5 text-sm bg-white"
+            />
           </div>
-          <input
-            id="shop-search"
-            type="text"
-            placeholder="Search by shop, owner or address..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="input-field pl-11"
-          />
+
+          {/* State / Region Filter */}
+          <div className="md:col-span-4">
+            <select
+              value={selectedState}
+              onChange={handleStateFilterChange}
+              className="input-field py-2.5 text-sm bg-white font-medium text-gray-700"
+              aria-label="Filter by State or Region"
+            >
+              <option value="">တိုင်းဒေသကြီး / ပြည်နယ်အားလုံး (All States)</option>
+              {MYANMAR_STATES.map((s) => (
+                <option key={s.id} value={s.nameEn}>
+                  {s.nameMm} ({s.nameEn})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Township Filter */}
+          <div className="md:col-span-3">
+            <select
+              value={selectedTownship}
+              onChange={(e) => setSelectedTownship(e.target.value)}
+              className="input-field py-2.5 text-sm bg-white font-medium text-gray-700 disabled:opacity-60"
+              aria-label="Filter by Township"
+            >
+              <option value="">မြို့နယ်အားလုံး (All Townships)</option>
+              {availableTownships.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -276,9 +371,14 @@ function Dashboard() {
       {/* Main Shops List */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-900">Registered Shops</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-2xl font-bold text-gray-900">Registered Shops</h3>
+            {shopsLoading && (
+              <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+            )}
+          </div>
           <span className="text-sm font-bold text-gray-400 bg-gray-100/50 px-3 py-1 rounded-full">
-            {filteredShops.length} TOTAL
+            {shops.length} TOTAL
           </span>
         </div>
 
@@ -303,14 +403,14 @@ function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white/50">
-                {filteredShops.length === 0 ? (
+                {shops.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-8 py-20 text-center">
                       <EmptyState searchTerm={searchTerm} />
                     </td>
                   </tr>
                 ) : (
-                  filteredShops.map((shop) => (
+                  shops.map((shop) => (
                     <tr
                       key={shop._id}
                       className="hover:bg-green-50/30 transition-colors group"
@@ -345,29 +445,37 @@ function Dashboard() {
                       </td>
                       <td className="px-8 py-6 text-gray-700">
                         <p className="font-semibold">{shop.ownerName}</p>
-                        <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z"
-                            />
-                          </svg>
-                          {new Date(shop.ownerBirthday).toLocaleDateString()}
-                        </p>
+                        {shop.ownerBirthday && (
+                          <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 01-1.5-.454M9 16v2m3-6v6m3-8v8M9 6a2 2 0 114 0 2 2 0 01-4 0zM5 11c0-3.866 3.134-7 7-7s7 3.134 7 7v7H5v-7z"
+                              />
+                            </svg>
+                            {new Date(shop.ownerBirthday).toLocaleDateString()}
+                          </p>
+                        )}
                       </td>
                       <td className="px-8 py-6">
                         <p className="text-sm text-gray-600 font-medium max-w-[200px] truncate">
                           {shop.address}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          {(shop.township || shop.state) && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100/80">
+                              <span>📍</span>
+                              <span>{[shop.township, shop.state].filter(Boolean).join(', ')}</span>
+                            </span>
+                          )}
                           <span className="text-[10px] font-mono text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded uppercase tracking-tighter italic">
                             {shop.location?.lat?.toFixed(4)},{" "}
                             {shop.location?.lng?.toFixed(4)}
@@ -466,12 +574,12 @@ function Dashboard() {
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-4">
-          {filteredShops.length === 0 ? (
+          {shops.length === 0 ? (
             <div className="glass-card rounded-2xl p-8 flex flex-col items-center gap-3">
               <EmptyState searchTerm={searchTerm} />
             </div>
           ) : (
-            filteredShops.map((shop) => (
+            shops.map((shop) => (
               <div
                 key={shop._id}
                 className="glass-card rounded-2xl p-5 space-y-4"
@@ -508,13 +616,23 @@ function Dashboard() {
                 <div className="space-y-2 text-sm text-gray-700">
                   <p className="font-semibold">
                     {shop.ownerName}{" "}
-                    <span className="text-gray-400 font-medium">
-                      · {new Date(shop.ownerBirthday).toLocaleDateString()}
-                    </span>
+                    {shop.ownerBirthday && (
+                      <span className="text-gray-400 font-medium">
+                        · {new Date(shop.ownerBirthday).toLocaleDateString()}
+                      </span>
+                    )}
                   </p>
                   <p className="text-gray-600 font-medium leading-snug">
                     {shop.address}
                   </p>
+                  {(shop.township || shop.state) && (
+                    <div className="pt-0.5">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-100">
+                        <span>📍</span>
+                        <span>{[shop.township, shop.state].filter(Boolean).join(', ')}</span>
+                      </span>
+                    </div>
+                  )}
                   <p className="text-[10px] font-mono text-gray-400">
                     {shop.location?.lat?.toFixed(4)},{" "}
                     {shop.location?.lng?.toFixed(4)}
