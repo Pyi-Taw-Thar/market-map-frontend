@@ -24,4 +24,19 @@ export const shopService = {
     const response = await api.get('/shops/upcoming-birthdays');
     return response.data;
   },
+
+  getShopById: async (id) => {
+    const response = await api.get(`/shops/${id}`);
+    return response.data;
+  },
+
+  updateShop: async (id, shopData) => {
+    const response = await api.put(`/shops/${id}`, shopData);
+    return response.data;
+  },
+
+  deleteShop: async (id) => {
+    const response = await api.delete(`/shops/${id}`);
+    return response.data;
+  },
 };

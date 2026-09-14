@@ -4,6 +4,7 @@ import AddShop from "./pages/AddShop";
 import Dashboard from "./pages/Dashboard";
 import MapView from "./pages/MapView";
 import ShopDetail from "./pages/ShopDetail";
+import EditShop from "./pages/EditShop";
 import { LoadScript } from "@react-google-maps/api";
 
 const navItems = [
@@ -229,6 +230,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/shop/:id" element={<ShopDetail />} />
+            <Route path="/edit-shop/:id" element={<EditShop />} />
             <Route path="/add-shop" element={<AddShop />} />
             <Route path="/map" element={<MapView />} />
           </Routes>

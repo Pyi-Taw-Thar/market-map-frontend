@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { GoogleMap, MarkerF, InfoWindowF } from '@react-google-maps/api'
 import { shopService } from '../services/api'
+import DeleteConfirmModal from '../components/DeleteConfirmModal'
 
 const mapContainerStyle = {
   width: '100%',
@@ -51,6 +53,8 @@ function MapView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [toastMessage, setToastMessage] = useState('')
+  const [deletingShop, setDeletingShop] = useState(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   // Map viewport state
   const [map, setMap] = useState(null)
@@ -81,6 +85,24 @@ function MapView() {
     setTimeout(() => {
       setToastMessage('')
     }, 4500)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingShop) return
+    setDeleteLoading(true)
+    try {
+      await shopService.deleteShop(deletingShop._id)
+      setShops((prev) => prev.filter((s) => s._id !== deletingShop._id))
+      if (selectedShop?._id === deletingShop._id) {
+        setSelectedShop(null)
+      }
+      showToast(`"${deletingShop.shopName}" ဆိုင်ကို အောင်မြင်စွာ ဖျက်ပစ်ပြီးပါပြီ`)
+      setDeletingShop(null)
+    } catch (err) {
+      showToast(err.response?.data?.message || 'ဆိုင် ဖျက်ပစ်ရန် မအောင်မြင်ပါ')
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -472,12 +494,34 @@ function MapView() {
                     </svg>
                     Open in Maps
                   </button>
-                  <button
-                    onClick={() => navigate(`/shop/${selectedShop._id}`)}
-                    className="w-full btn-secondary py-1.5 text-xs text-center"
-                  >
-                    View Details
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/shop/${selectedShop._id}`)}
+                      className="flex-1 btn-secondary py-1.5 text-xs text-center font-semibold"
+                    >
+                      Details
+                    </button>
+                    <button
+                      onClick={() => navigate(`/edit-shop/${selectedShop._id}`)}
+                      className="flex-1 py-1.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl border border-amber-200 text-xs flex items-center justify-center gap-1 transition-colors"
+                      title="Edit Shop"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setDeletingShop(selectedShop)}
+                      className="flex-1 py-1.5 px-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl border border-red-200 text-xs flex items-center justify-center gap-1 transition-colors"
+                      title="Delete Shop"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </InfoWindowF>
@@ -486,11 +530,16 @@ function MapView() {
       </div>
 
       {/* Quick Add Shop Modal (Opens upon clicking the map) */}
-      {isQuickAddOpen && newPin && (
+      {isQuickAddOpen && newPin && createPortal(
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in"
+          className="fixed inset-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCancelNewPin()
+            }
+          }}
         >
           <div className="bg-white rounded-[2rem] shadow-2xl max-w-lg w-full p-6 sm:p-8 space-y-5 border border-gray-100 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start">
@@ -663,8 +712,18 @@ function MapView() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deletingShop}
+        shopName={deletingShop?.shopName || ''}
+        loading={deleteLoading}
+        onClose={() => setDeletingShop(null)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }

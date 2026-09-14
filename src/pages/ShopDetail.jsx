@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { shopService } from '../services/api'
+import DeleteConfirmModal from '../components/DeleteConfirmModal'
 
 function ShopDetail() {
   const { id } = useParams()
@@ -8,6 +9,8 @@ function ShopDetail() {
   const [shop, setShop] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   useEffect(() => {
     fetchShop()
@@ -15,17 +18,30 @@ function ShopDetail() {
 
   const fetchShop = async () => {
     try {
-      const data = await shopService.getAllShops()
-      const found = data.find(s => s._id === id)
+      const found = await shopService.getShopById(id)
       if (found) {
         setShop(found)
       } else {
-        setError('Shop not found')
+        setError('ဆိုင်အချက်အလက် ရှာမတွေ့ပါ')
       }
     } catch (err) {
-      setError('Failed to fetch shop details')
+      setError('ဆိုင်အချက်အလက် ရယူရန် မအောင်မြင်ပါ')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!shop) return
+    setDeleteLoading(true)
+    try {
+      await shopService.deleteShop(shop._id)
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(err.response?.data?.message || 'ဆိုင် ဖျက်ပစ်ရန် မအောင်မြင်ပါ')
+      setIsDeleteOpen(false)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -130,16 +146,16 @@ function ShopDetail() {
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-100">
           <button
             onClick={() => navigate('/')}
-            className="flex-1 btn-secondary"
+            className="btn-secondary py-3 px-5 text-sm"
           >
             Back
           </button>
           <button
             onClick={() => getDirections(shop.location.lat, shop.location.lng)}
-            className="flex-1 btn-primary"
+            className="flex-1 btn-primary py-3 text-sm flex items-center justify-center gap-2"
           >
             <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -147,8 +163,34 @@ function ShopDetail() {
             </svg>
             Get Route
           </button>
+          <button
+            onClick={() => navigate(`/edit-shop/${shop._id}`)}
+            className="py-3 px-5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold rounded-xl border border-amber-200 transition-all flex items-center gap-2 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Shop
+          </button>
+          <button
+            onClick={() => setIsDeleteOpen(true)}
+            className="py-3 px-5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl border border-red-200 transition-all flex items-center gap-2 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete Shop
+          </button>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        shopName={shop.shopName}
+        loading={deleteLoading}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }

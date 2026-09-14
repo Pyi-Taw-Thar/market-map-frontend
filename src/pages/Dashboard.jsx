@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { shopService } from "../services/api";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,6 +10,30 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingShop, setDeletingShop] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingShop) return;
+    setDeleteLoading(true);
+    try {
+      await shopService.deleteShop(deletingShop._id);
+      setShops((prev) => prev.filter((s) => s._id !== deletingShop._id));
+      setUpcomingBirthdays((prev) => prev.filter((s) => s._id !== deletingShop._id));
+      showToast(`"${deletingShop.shopName}" ဆိုင်ကို အောင်မြင်စွာ ဖျက်ပစ်ပြီးပါပြီ`);
+      setDeletingShop(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "ဆိုင် ဖျက်ပစ်ရန် မအောင်မြင်ပါ");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchShops();
@@ -386,6 +411,7 @@ function Dashboard() {
                             }
                             className="p-3 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-all active:scale-90"
                             aria-label={`Get directions to ${shop.shopName}`}
+                            title="Get Directions"
                           >
                             <svg
                               className="w-5 h-5"
@@ -406,6 +432,26 @@ function Dashboard() {
                                 strokeWidth={2}
                                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                               />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => navigate(`/edit-shop/${shop._id}`)}
+                            className="p-3 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition-all active:scale-90"
+                            aria-label={`Edit ${shop.shopName}`}
+                            title="Edit Shop"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setDeletingShop(shop)}
+                            className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all active:scale-90"
+                            aria-label={`Delete ${shop.shopName}`}
+                            title="Delete Shop"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
                         </div>
@@ -475,13 +521,13 @@ function Dashboard() {
                   </p>
                 </div>
 
-                <div className="flex gap-3 pt-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                   <button
                     onClick={() => navigate(`/shop/${shop._id}`)}
-                    className="flex-1 btn-secondary py-2.5 text-sm"
+                    className="btn-secondary py-2 text-xs flex items-center justify-center gap-1.5"
                   >
                     <svg
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -506,10 +552,10 @@ function Dashboard() {
                     onClick={() =>
                       getDirections(shop.location.lat, shop.location.lng)
                     }
-                    className="flex-1 btn-secondary py-2.5 text-sm"
+                    className="btn-secondary py-2 text-xs flex items-center justify-center gap-1.5"
                   >
                     <svg
-                      className="w-4 h-4 text-green-500"
+                      className="w-3.5 h-3.5 text-green-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -528,7 +574,25 @@ function Dashboard() {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    Directions
+                    Route
+                  </button>
+                  <button
+                    onClick={() => navigate(`/edit-shop/${shop._id}`)}
+                    className="btn-secondary py-2 text-xs text-amber-600 hover:text-amber-700 flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setDeletingShop(shop)}
+                    className="btn-secondary py-2 text-xs text-red-600 hover:text-red-700 flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete
                   </button>
                 </div>
               </div>
@@ -536,6 +600,28 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toastMessage && (
+        <div
+          role="status"
+          className="fixed bottom-6 right-6 z-50 p-4 bg-emerald-600 text-white rounded-2xl shadow-xl font-semibold text-sm flex items-center gap-3 animate-bounce"
+        >
+          <svg className="w-5 h-5 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deletingShop}
+        shopName={deletingShop?.shopName || ""}
+        loading={deleteLoading}
+        onClose={() => setDeletingShop(null)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 }
