@@ -108,33 +108,16 @@ function App() {
         >
           <div className="container mx-auto px-4 sm:px-6 py-4">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-200">
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
+              <Link to="/" className="flex items-center gap-3 group focus:outline-none">
+                <img
+                  src="/pyi-taw-tar.jpg"
+                  alt="PTT Logo"
+                  className="w-10 h-10 rounded-xl object-cover shadow-md group-hover:scale-105 transition-transform border border-emerald-100"
+                />
+                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600 group-hover:opacity-90 transition-opacity">
                   PTT Marketing Map
                 </h1>
-              </div>
+              </Link>
 
               {/* Desktop nav */}
               <div className="hidden md:flex items-center gap-2">
