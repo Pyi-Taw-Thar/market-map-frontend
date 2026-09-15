@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { shopService } from "../services/api";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
@@ -6,6 +6,7 @@ import { MYANMAR_STATES } from "../constants/regions";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const searchRequestIdRef = useRef(0);
   const [shops, setShops] = useState([]);
   const [upcomingBirthdays, setUpcomingBirthdays] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +76,7 @@ function Dashboard() {
   const [availableTownships, setAvailableTownships] = useState([]);
 
   const fetchShops = async () => {
+    const currentRequestId = ++searchRequestIdRef.current;
     setShopsLoading(true);
     try {
       const params = {};
@@ -83,12 +85,19 @@ function Dashboard() {
       if (searchTerm.trim()) params.search = searchTerm.trim();
 
       const data = await shopService.getAllShops(params);
-      setShops(data);
+      if (currentRequestId === searchRequestIdRef.current) {
+        setShops(data);
+        setError("");
+      }
     } catch (err) {
-      setError("Failed to fetch shops");
+      if (currentRequestId === searchRequestIdRef.current) {
+        setError(err.response?.data?.message || "Failed to fetch shops");
+      }
     } finally {
-      setLoading(false);
-      setShopsLoading(false);
+      if (currentRequestId === searchRequestIdRef.current) {
+        setLoading(false);
+        setShopsLoading(false);
+      }
     }
   };
 
@@ -184,11 +193,24 @@ function Dashboard() {
             <input
               id="shop-search"
               type="text"
-              placeholder="ဆိုင်အမည်၊ ပိုင်ရှင် သို့ လိပ်စာဖြင့် ရှာရန်..."
+              placeholder="ဆိုင်အမည်၊ ဖုန်း၊ ပိုင်ရှင် သို့ လိပ်စာဖြင့် ရှာရန်..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10 py-2.5 text-sm bg-white"
+              className={`input-field pl-10 ${searchTerm ? 'pr-9' : 'pr-3'} py-2.5 text-sm bg-white`}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Clear search"
+                title="ရှင်းထုတ်မည်"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* State / Region Filter */}
